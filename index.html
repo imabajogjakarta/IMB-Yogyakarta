@@ -15,6 +15,7 @@
         .nav-menu { display: flex; gap: 10px; }
         .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
         .nav-btn:hover, .nav-btn.active { background-color: rgba(255,255,255,0.15); border-color: white; }
+        .nav-btn.pengurus-btn { background-color: #08422c; border-color: #107a53; }
 
         /* Container */
         .main-container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
@@ -69,6 +70,7 @@
         <div class="nav-menu">
             <button class="nav-btn active" onclick="switchTab('form', this)">Isi Sensus</button>
             <button class="nav-btn" onclick="switchTab('direktori', this)">Direktori Anggota</button>
+            <button class="nav-btn pengurus-btn" onclick="switchTab('pengurus', this)">Pengurus</button>
         </div>
     </div>
 
@@ -142,6 +144,24 @@
                 </table>
             </div>
         </div>
+
+        <!-- Halaman 3: Menu Pengurus (Login / Akses Admin) -->
+        <div id="tab-pengurus" class="card">
+            <h3>Login Pengurus</h3>
+            <p class="card-subtitle">Masukkan PIN pengurus untuk mengakses panel manajemen data.</p>
+            
+            <div class="form-group">
+                <label>PIN PENGURUS</label>
+                <input type="password" id="pinInput" placeholder="Masukkan PIN...">
+            </div>
+            <button type="button" class="submit-btn" onclick="checkPin()">Buka Panel Pengurus</button>
+            <p style="text-align: center; font-size: 11px; color: #888; margin-top: 15px;">PIN Default: <b>123456</b> (Bisa disesuaikan)</p>
+            
+            <div id="adminPanel" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                <p style="color: #0b5c3e; font-weight: bold; text-align: center;">Akses Berhasil! Anda dapat melihat atau mengelola Google Sheets langsung.</p>
+                <a href="https://docs.google.com/spreadsheets/d/1G6tMd5Lp01GXi-2mKK6M50iT17EBTvNOGqih0oTF49M/edit" target="_blank" style="display: block; text-align: center; background: #0b5c3e; color: white; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: bold; margin-top: 10px;">Buka Google Sheets Database</a>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -149,13 +169,11 @@
     </footer>
 
     <script>
-        // Ganti URL Web App Google Script Anda di bawah ini
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzIPUIxMhY-9TIPVs5umr6HtnCx5WkqLtuYw22FixM9mTZg0EGB9GriGenbryQb5ChiGg/exec';
         
         const form = document.forms['formSensus'];
         const btnSubmit = document.getElementById('btnSubmit');
 
-        // Fungsi Ganti Tab Menu Navbar
         function switchTab(tabName, element) {
             document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -164,12 +182,13 @@
                 document.getElementById('tab-form').classList.add('active');
             } else if(tabName === 'direktori') {
                 document.getElementById('tab-direktori').classList.add('active');
-                fetchDirektoriData(); // Ambil data saat tab direktori dibuka
+                fetchDirektoriData();
+            } else if(tabName === 'pengurus') {
+                document.getElementById('tab-pengurus').classList.add('active');
             }
             element.classList.add('active');
         }
 
-        // Proses Kirim Data Formulir
         form.addEventListener('submit', e => {
             e.preventDefault();
             btnSubmit.innerHTML = 'Mengirim...';
@@ -189,13 +208,11 @@
                 });
         });
 
-        // Ambil Data untuk Ditampilkan di Direktori (Tabel)
         let allData = [];
         function fetchDirektoriData() {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="6" class="loading-text">Memuat data terbaru...</td></tr>';
 
-            // Menggunakan teknik JSONP atau GET ke Google Script (Pastikan doGet aktif di Apps Script)
             fetch(scriptURL)
                 .then(res => res.json())
                 .then(data => {
@@ -228,7 +245,6 @@
             tableBody.innerHTML = html;
         }
 
-        // Fitur Pencarian Tabel
         function filterTable() {
             const keyword = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allData.filter(row => {
@@ -238,6 +254,16 @@
                        (row.prodi && row.prodi.toLowerCase().includes(keyword));
             });
             renderTable(filtered);
+        }
+
+        function checkPin() {
+            const pin = document.getElementById('pinInput').value;
+            if(pin === '123456') {
+                document.getElementById('adminPanel').style.display = 'block';
+                alert('PIN Benar! Panel pengurus terbuka.');
+            } else {
+                alert('PIN Salah! Silakan coba lagi.');
+            }
         }
     </script>
 </body>
