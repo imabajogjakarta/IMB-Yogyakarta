@@ -214,13 +214,18 @@
             tableBody.innerHTML = '<tr><td colspan="6" class="loading-text">Memuat data terbaru...</td></tr>';
 
             fetch(scriptURL)
-                .then(res => res.json())
-                .then(data => {
-                    allData = data;
-                    renderTable(allData);
+                .then(res => res.text()) // Ambil sebagai teks dulu untuk menghindari error blok CORS/Redirect
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        allData = data;
+                        renderTable(allData);
+                    } catch (e) {
+                        tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data (format tidak valid).</td></tr>';
+                    }
                 })
                 .catch(err => {
-                    tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data atau data masih kosong.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data dari server.</td></tr>';
                 });
         }
 
