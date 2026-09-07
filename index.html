@@ -5,65 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendataan Anggota IMABA Yogyakarta</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
-        .container { max-width: 650px; background: white; padding: 30px; border-radius: 10px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h2 { color: #0b5c3e; border-bottom: 2px solid #0b5c3e; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
-        .form-group { margin-bottom: 15px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
+        
+        /* Navbar */
+        .navbar { background-color: #0b5c3e; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-brand { display: flex; align-items: center; gap: 12px; }
+        .nav-brand h1 { font-size: 18px; margin: 0; font-weight: bold; }
+        .nav-brand p { font-size: 11px; margin: 2px 0 0 0; opacity: 0.85; }
+        .nav-menu { display: flex; gap: 10px; }
+        .nav-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+        .nav-btn:hover, .nav-btn.active { background-color: rgba(255,255,255,0.15); border-color: white; }
+
+        /* Container */
+        .main-container { max-width: 650px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e1e4e8; display: none; }
+        .card.active { display: block; }
+
+        /* Form Styles */
+        h3 { color: #0b5c3e; text-align: center; margin-top: 0; margin-bottom: 8px; font-size: 20px; }
+        .card-subtitle { text-align: center; font-size: 13px; color: #666; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #333; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        button { background-color: #0b5c3e; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 15px; }
-        button:hover { background-color: #08422c; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; color: #444; letter-spacing: 0.5px; }
+        input { width: 100%; padding: 10px 12px; border: 1px solid #ccd0d5; border-radius: 6px; box-sizing: border-box; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        input:focus { border-color: #0b5c3e; box-shadow: 0 0 0 2px rgba(11, 92, 62, 0.1); }
+        
+        button.submit-btn { background-color: #0b5c3e; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 15px; font-weight: bold; margin-top: 10px; transition: background 0.2s; }
+        button.submit-btn:hover { background-color: #08422c; }
         button:disabled { background-color: #7ab39c; cursor: not-allowed; }
-        @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
+
+        /* Direktori Tabel Styles */
+        .search-box { width: 100%; padding: 10px 15px; margin-bottom: 20px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #0b5c3e; font-weight: bold; }
+        tr:hover { background-color: #fdfdfd; }
+        .loading-text, .empty-text { text-align: center; color: #777; padding: 25px; font-style: italic; }
+
+        /* Footer */
+        footer { text-align: center; font-size: 12px; color: #777; margin-top: 50px; padding-bottom: 30px; }
+
+        @media (max-width: 600px) {
+            .navbar { padding: 12px 15px; flex-direction: column; gap: 10px; text-align: center; }
+            .nav-brand { flex-direction: column; }
+            .form-row { flex-direction: column; gap: 0; }
+            .main-container { margin: 20px 10px; }
+            .card { padding: 20px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Pendataan Anggota IMABA</h2>
-        <form id="formSensus" name="formSensus">
-            <div class="form-group">
-                <label>1. NAMA LENGKAP *</label>
-                <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
+
+    <!-- Navbar Atas -->
+    <div class="navbar">
+        <div class="nav-brand">
+            <div>
+                <h1>IMABA Yogyakarta</h1>
+                <p>Portal Pendataan Anggota Mandiri</p>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>2. NOMOR WHATSAPP *</label>
-                    <input type="number" name="whatsapp" placeholder="Contoh: 08123456789" required>
-                </div>
-                <div class="form-group">
-                    <label>3. ANGKATAN *</label>
-                    <input type="number" name="angkatan" placeholder="Contoh: 2024" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>4. KAMPUS *</label>
-                    <input type="text" name="kampus" placeholder="Contoh: UIN Sunan Kalijaga" required>
-                </div>
-                <div class="form-group">
-                    <label>5. PROGRAM STUDI *</label>
-                    <input type="text" name="prodi" placeholder="Contoh: Ilmu Hukum" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>6. ALAMAT ASAL *</label>
-                <input type="text" name="alamat_asal" placeholder="Tuliskan desa/kecamatan/kabupaten asal" required>
-            </div>
-            <div class="form-group">
-                <label>7. DEPARTEMEN DI IMABA *</label>
-                <input type="text" name="departemen" placeholder="Contoh: Kaderisasi / Keilmuan / Belum ada" required>
-            </div>
-            <button type="submit" id="btnSubmit">Kirim Data</button>
-        </form>
+        </div>
+        <div class="nav-menu">
+            <button class="nav-btn active" onclick="switchTab('form', this)">Isi Sensus</button>
+            <button class="nav-btn" onclick="switchTab('direktori', this)">Direktori Anggota</button>
+        </div>
     </div>
 
+    <div class="main-container">
+        <!-- Halaman 1: Formulir Pendataan -->
+        <div id="tab-form" class="card active">
+            <h3>Formulir Sensus Anggota</h3>
+            <p class="card-subtitle">Silakan isi data diri Anda dengan lengkap dan benar pada formulir di bawah ini.</p>
+            
+            <form id="formSensus" name="formSensus">
+                <div class="form-group">
+                    <label>1. NAMA LENGKAP *</label>
+                    <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>2. NOMOR WHATSAPP *</label>
+                        <input type="number" name="whatsapp" placeholder="Contoh: 08123456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label>3. ANGKATAN *</label>
+                        <input type="number" name="angkatan" placeholder="Contoh: 2024" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>4. KAMPUS *</label>
+                        <input type="text" name="kampus" placeholder="Contoh: UIN Sunan Kalijaga" required>
+                    </div>
+                    <div class="form-group">
+                        <label>5. PROGRAM STUDI *</label>
+                        <input type="text" name="prodi" placeholder="Contoh: Ilmu Hukum" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>6. ALAMAT ASAL *</label>
+                    <input type="text" name="alamat_asal" placeholder="Tuliskan desa/kecamatan/kabupaten asal" required>
+                </div>
+                <div class="form-group">
+                    <label>7. DEPARTEMEN DI IMABA *</label>
+                    <input type="text" name="departemen" placeholder="Contoh: Kaderisasi / Keilmuan / Belum ada" required>
+                </div>
+                <button type="submit" id="btnSubmit" class="submit-btn">Kirim Data Sensus</button>
+            </form>
+        </div>
+
+        <!-- Halaman 2: Direktori Data (Tabel Anggota) -->
+        <div id="tab-direktori" class="card">
+            <h3>Direktori Anggota IMABA</h3>
+            <p class="card-subtitle">Daftar seluruh anggota yang telah terdaftar di dalam sistem.</p>
+            
+            <input type="text" id="searchInput" class="search-box" placeholder="Cari nama, kampus, atau departemen..." onkeyup="filterTable()">
+            
+            <div class="table-responsive">
+                <table id="direktoriTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Angkatan</th>
+                            <th>Kampus</th>
+                            <th>Prodi</th>
+                            <th>Departemen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="6" class="loading-text">Memuat data anggota...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 DPW IMABA Yogyakarta. All rights reserved.
+    </footer>
+
     <script>
+        // Ganti URL Web App Google Script Anda di bawah ini
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzIPUIxMhY-9TIPVs5umr6HtnCx5WkqLtuYw22FixM9mTZg0EGB9GriGenbryQb5ChiGg/exec';
+        
         const form = document.forms['formSensus'];
         const btnSubmit = document.getElementById('btnSubmit');
 
+        // Fungsi Ganti Tab Menu Navbar
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if(tabName === 'form') {
+                document.getElementById('tab-form').classList.add('active');
+            } else if(tabName === 'direktori') {
+                document.getElementById('tab-direktori').classList.add('active');
+                fetchDirektoriData(); // Ambil data saat tab direktori dibuka
+            }
+            element.classList.add('active');
+        }
+
+        // Proses Kirim Data Formulir
         form.addEventListener('submit', e => {
             e.preventDefault();
             btnSubmit.innerHTML = 'Mengirim...';
@@ -73,15 +179,66 @@
                 .then(response => {
                     alert('Terima kasih! Data Anda berhasil dikirim.');
                     form.reset();
-                    btnSubmit.innerHTML = 'Kirim Data';
+                    btnSubmit.innerHTML = 'Kirim Data Sensus';
                     btnSubmit.disabled = false;
                 })
                 .catch(error => {
                     alert('Maaf, terjadi kesalahan. Silakan coba lagi.');
-                    btnSubmit.innerHTML = 'Kirim Data';
+                    btnSubmit.innerHTML = 'Kirim Data Sensus';
                     btnSubmit.disabled = false;
                 });
         });
+
+        // Ambil Data untuk Ditampilkan di Direktori (Tabel)
+        let allData = [];
+        function fetchDirektoriData() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="loading-text">Memuat data terbaru...</td></tr>';
+
+            // Menggunakan teknik JSONP atau GET ke Google Script (Pastikan doGet aktif di Apps Script)
+            fetch(scriptURL)
+                .then(res => res.json())
+                .then(data => {
+                    allData = data;
+                    renderTable(allData);
+                })
+                .catch(err => {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data atau data masih kosong.</td></tr>';
+                });
+        }
+
+        function renderTable(data) {
+            const tableBody = document.getElementById('tableBody');
+            if(!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Belum ada data anggota yang terdaftar.</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            data.forEach((row, index) => {
+                html += `<tr>
+                    <td>${index + 1}</td>
+                    <td><b>${row.nama || '-'}</b></td>
+                    <td>${row.angkatan || '-'}</td>
+                    <td>${row.kampus || '-'}</td>
+                    <td>${row.prodi || '-'}</td>
+                    <td>${row.departemen || '-'}</td>
+                </tr>`;
+            });
+            tableBody.innerHTML = html;
+        }
+
+        // Fitur Pencarian Tabel
+        function filterTable() {
+            const keyword = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allData.filter(row => {
+                return (row.nama && row.nama.toLowerCase().includes(keyword)) ||
+                       (row.kampus && row.kampus.toLowerCase().includes(keyword)) ||
+                       (row.departemen && row.departemen.toLowerCase().includes(keyword)) ||
+                       (row.prodi && row.prodi.toLowerCase().includes(keyword));
+            });
+            renderTable(filtered);
+        }
     </script>
 </body>
 </html>
