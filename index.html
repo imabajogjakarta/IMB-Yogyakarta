@@ -117,7 +117,7 @@
             </form>
         </div>
 
-        <!-- Halaman 2: Direktori Data (Tabel Anggota) -->
+        <!-- Halaman 2: Direktori Data (Tabel Anggota via Public CSV) -->
         <div id="tab-direktori" class="card">
             <h3>Direktori Anggota IMABA</h3>
             <p class="card-subtitle">Daftar seluruh anggota yang telah terdaftar di dalam sistem.</p>
@@ -145,7 +145,7 @@
             </div>
         </div>
 
-        <!-- Halaman 3: Menu Pengurus (Login / Akses Admin) -->
+        <!-- Halaman 3: Menu Pengurus -->
         <div id="tab-pengurus" class="card">
             <h3>Login Pengurus</h3>
             <p class="card-subtitle">Masukkan PIN pengurus untuk mengakses panel manajemen data.</p>
@@ -155,7 +155,7 @@
                 <input type="password" id="pinInput" placeholder="Masukkan PIN...">
             </div>
             <button type="button" class="submit-btn" onclick="checkPin()">Buka Panel Pengurus</button>
-            <p style="text-align: center; font-size: 11px; color: #888; margin-top: 15px;">PIN Default: <b>123456</b> (Bisa disesuaikan)</p>
+            <p style="text-align: center; font-size: 11px; color: #888; margin-top: 15px;">PIN Default: <b>123456</b></p>
             
             <div id="adminPanel" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
                 <p style="color: #0b5c3e; font-weight: bold; text-align: center;">Akses Berhasil! Anda dapat melihat atau mengelola Google Sheets langsung.</p>
@@ -170,7 +170,9 @@
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbzIPUIxMhY-9TIPVs5umr6HtnCx5WkqLtuYw22FixM9mTZg0EGB9GriGenbryQb5ChiGg/exec';
-        
+        // Menggunakan link export CSV publik dari Google Sheets agar mudah dibaca tanpa error CORS
+        const sheetCSVURL = 'https://docs.google.com/spreadsheets/d/1G6tMd5Lp01GXi-2mKK6M50iT17EBTvNOGqih0oTF49M/export?format=csv';
+
         const form = document.forms['formSensus'];
         const btnSubmit = document.getElementById('btnSubmit');
 
@@ -213,16 +215,30 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="6" class="loading-text">Memuat data terbaru...</td></tr>';
 
-            fetch(scriptURL)
-                .then(res => res.text()) // Ambil sebagai teks dulu untuk menghindari error blok CORS/Redirect
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        allData = data;
-                        renderTable(allData);
-                    } catch (e) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data (format tidak valid).</td></tr>';
+            fetch(sheetCSVURL)
+                .then(res => res.text())
+                .then(csvText => {
+                    const rows = csvText.split('\n');
+                    allData = [];
+                    // Mulai dari i=1 untuk melewati baris judul (header)
+                    for (let i = 1; i < rows.length; i++) {
+                        if (!rows[i].trim()) continue;
+                        // Sederhana: pecah koma (menangani data standar)
+                        const cols = rows[i].split(',');
+                        if (cols.length >= 8) {
+                            allData.push({
+                                waktu: cols[0],
+                                nama: cols[1],
+                                whatsapp: cols[2],
+                                angkatan: cols[3],
+                                kampus: cols[4],
+                                prodi: cols[5],
+                                alamat: cols[6],
+                                departemen: cols[7]
+                            });
+                        }
                     }
+                    renderTable(allData);
                 })
                 .catch(err => {
                     tableBody.innerHTML = '<tr><td colspan="6" class="empty-text">Gagal memuat data dari server.</td></tr>';
