@@ -5,85 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pendataan Anggota IMABA Yogyakarta</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
-        .container {
-            max-width: 650px;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin: 0 auto;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #0b5c3e;
-            border-bottom: 2px solid #0b5c3e;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 13px;
-            color: #333;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        button {
-            background-color: #0b5c3e;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        button:hover {
-            background-color: #08422c;
-        }
-        @media (max-width: 600px) {
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; }
+        .container { max-width: 650px; background: white; padding: 30px; border-radius: 10px; margin: 0 auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #0b5c3e; border-bottom: 2px solid #0b5c3e; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        button { background-color: #0b5c3e; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 15px; }
+        button:hover { background-color: #08422c; }
+        button:disabled { background-color: #7ab39c; cursor: not-allowed; }
+        @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Pendataan Anggota IMABA</h2>
-        
-        <form id="formSensus">
+        <form id="formSensus" name="formSensus">
             <div class="form-group">
                 <label>1. NAMA LENGKAP *</label>
                 <input type="text" name="nama" placeholder="Masukkan nama lengkap" required>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>2. NOMOR WHATSAPP *</label>
@@ -94,7 +37,6 @@
                     <input type="number" name="angkatan" placeholder="Contoh: 2024" required>
                 </div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label>4. KAMPUS *</label>
@@ -105,20 +47,41 @@
                     <input type="text" name="prodi" placeholder="Contoh: Ilmu Hukum" required>
                 </div>
             </div>
-
             <div class="form-group">
                 <label>6. ALAMAT ASAL *</label>
                 <input type="text" name="alamat_asal" placeholder="Tuliskan desa/kecamatan/kabupaten asal" required>
             </div>
-
             <div class="form-group">
                 <label>7. DEPARTEMEN DI IMABA *</label>
                 <input type="text" name="departemen" placeholder="Contoh: Kaderisasi / Keilmuan / Belum ada" required>
             </div>
-
             <button type="submit" id="btnSubmit">Kirim Data</button>
         </form>
     </div>
 
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzIPUIxMhY-9TIPVs5umr6HtnCx5WkqLtuYw22FixM9mTZg0EGB9GriGenbryQb5ChiGg/exec';
+        const form = document.forms['formSensus'];
+        const btnSubmit = document.getElementById('btnSubmit');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            btnSubmit.innerHTML = 'Mengirim...';
+            btnSubmit.disabled = true;
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+                .then(response => {
+                    alert('Terima kasih! Data Anda berhasil dikirim.');
+                    form.reset();
+                    btnSubmit.innerHTML = 'Kirim Data';
+                    btnSubmit.disabled = false;
+                })
+                .catch(error => {
+                    alert('Maaf, terjadi kesalahan. Silakan coba lagi.');
+                    btnSubmit.innerHTML = 'Kirim Data';
+                    btnSubmit.disabled = false;
+                });
+        });
+    </script>
 </body>
 </html>
